@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
-body {
+  body {
     margin: 0;
     padding: 0;
     background: url("img/wmremove-transformed.jpeg") center/cover no-repeat;
@@ -130,7 +130,6 @@ body {
     box-sizing: border-box;
     background: rgba(6, 6, 8, 0.92);
   }
-
   .libro-wrapper {
     display: flex;
     flex-direction: column;
@@ -139,15 +138,13 @@ body {
     width: 100%;
   }
 
-  /* Escena 3D — una sola página */
+  /* Escena 3D */
   .libro-escena {
     perspective: 1800px;
     width: min(380px, 88vw);
     height: min(520px, 120vw);
     position: relative;
   }
-
-  /* Sombra base */
   .libro-escena::after {
     content: '';
     position: absolute;
@@ -168,7 +165,7 @@ body {
     transform-style: preserve-3d;
   }
 
-  /* Cada tarjeta/página */
+  /* Cada página */
   .pagina-card {
     position: absolute;
     inset: 0;
@@ -178,21 +175,17 @@ body {
                 opacity   0.75s ease;
     border-radius: 6px 6px 4px 4px;
   }
-
-  /* Estado saliente: voltea hacia arriba y se va */
   .pagina-card.saliendo {
     transform: rotateX(90deg) translateZ(60px);
     opacity: 0;
     pointer-events: none;
   }
-  /* Estado entrando desde atrás */
   .pagina-card.entrando {
     transform: rotateX(-25deg) translateZ(-40px) scale(0.92);
     opacity: 0;
     pointer-events: none;
     z-index: 0;
   }
-  /* Estado activo */
   .pagina-card.activa {
     transform: rotateX(0deg) translateZ(0px) scale(1);
     opacity: 1;
@@ -222,29 +215,23 @@ body {
     flex-direction: column;
     overflow: hidden;
   }
-
-  /* Doblez esquina superior derecha */
+  /* Doblez esquina */
   .pagina-cara::before {
     content: '';
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
+    top: 0; right: 0;
+    width: 0; height: 0;
     border-style: solid;
     border-width: 0 28px 28px 0;
     border-color: transparent rgba(180,150,100,0.35) transparent transparent;
     border-radius: 0 6px 0 0;
   }
-
-  /* Margen izquierdo rojo estilo cuaderno */
+  /* Margen rojo */
   .pagina-cara::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 42px;
-    width: 1px;
-    height: 100%;
+    top: 0; left: 42px;
+    width: 1px; height: 100%;
     background: rgba(200, 100, 100, 0.25);
   }
 
@@ -259,18 +246,9 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgba(160,120,64,0.3) transparent;
   }
-
-  /* Webkit scrollbar */
-  .pagina-contenido::-webkit-scrollbar {
-    width: 4px;
-  }
-  .pagina-contenido::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .pagina-contenido::-webkit-scrollbar-thumb {
-    background: rgba(160,120,64,0.35);
-    border-radius: 2px;
-  }
+  .pagina-contenido::-webkit-scrollbar       { width: 4px; }
+  .pagina-contenido::-webkit-scrollbar-track { background: transparent; }
+  .pagina-contenido::-webkit-scrollbar-thumb { background: rgba(160,120,64,0.35); border-radius: 2px; }
 
   .pagina-titulo {
     font-family: 'EB Garamond', serif;
@@ -283,7 +261,6 @@ body {
     line-height: 32px;
     flex-shrink: 0;
   }
-
   .pagina-texto {
     font-family: 'Caveat', cursive;
     font-size: 1.2rem;
@@ -291,7 +268,6 @@ body {
     line-height: 32px;
     margin: 0;
   }
-
   .pagina-img {
     width: 100%;
     max-height: 220px;
@@ -299,8 +275,10 @@ body {
     border-radius: 4px;
     opacity: 0.92;
     flex-shrink: 0;
+    cursor: zoom-in;
+    transition: opacity 0.2s;
   }
-
+  .pagina-img:hover { opacity: 1; }
   .pagina-video {
     width: 100%;
     border: none;
@@ -308,7 +286,6 @@ body {
     aspect-ratio: 16/9;
     flex-shrink: 0;
   }
-
   .num-pagina {
     font-family: 'EB Garamond', serif;
     font-size: 0.72rem;
@@ -329,8 +306,7 @@ body {
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.25);
     color: #fff;
-    width: 48px;
-    height: 48px;
+    width: 48px; height: 48px;
     border-radius: 50%;
     font-size: 1.3rem;
     cursor: pointer;
@@ -341,10 +317,9 @@ body {
     user-select: none;
     -webkit-user-select: none;
   }
-  .libro-btn:hover     { background: rgba(255,255,255,0.18); transform: scale(1.08); }
-  .libro-btn:active    { transform: scale(0.95); }
-  .libro-btn:disabled  { opacity: 0.3; cursor: default; transform: none; }
-
+  .libro-btn:hover    { background: rgba(255,255,255,0.18); transform: scale(1.08); }
+  .libro-btn:active   { transform: scale(0.95); }
+  .libro-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
   .libro-indicador {
     font-family: 'EB Garamond', serif;
     font-size: 1rem;
@@ -353,6 +328,53 @@ body {
     min-width: 70px;
     text-align: center;
   }
+
+  /* ══ LIGHTBOX ══ */
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.93);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #lightbox.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  #lightbox img {
+    max-width: 92vw;
+    max-height: 88vh;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+    transform: scale(0.92);
+    transition: transform 0.3s ease;
+    /* evita que el clic en la imagen cierre el lightbox */
+    pointer-events: none;
+  }
+  #lightbox.visible img {
+    transform: scale(1);
+  }
+  #lightbox-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.4rem;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    background: none;
+    border: none;
+    padding: 0.4rem;
+  }
+  #lightbox-close:hover { opacity: 1; }
 
   /* ══ RESPONSIVE ══ */
   @media (max-width: 768px) {
@@ -364,12 +386,8 @@ body {
     .pagina-cara       { padding: 1.8rem 1.4rem 1.2rem; }
     .pagina-texto      { font-size: 1.1rem; }
   }
-
-  /* En desktop el canvas se ve mejor centrado */
   @media (min-width: 769px) {
-    #frame-canvas {
-      object-fit: contain;
-    }
+    #frame-canvas { object-fit: contain; }
   }
 </style>
 </head>
@@ -414,22 +432,27 @@ body {
 </div>
 
 <!-- ══════════════════════════════════════
-     LIBRO — una página a la vez
+     LIBRO
 ════════════════════════════════════════ -->
 <div class="libro-section">
   <div class="libro-wrapper">
-
     <div class="libro-escena" id="libro-escena">
       <div class="paginas-stack" id="paginas-stack"></div>
     </div>
-
     <div class="libro-controles">
       <button class="libro-btn" id="btn-anterior">&#8592;</button>
       <div class="libro-indicador" id="libro-indicador">1 / 1</div>
       <button class="libro-btn" id="btn-siguiente">&#8594;</button>
     </div>
-
   </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LIGHTBOX
+════════════════════════════════════════ -->
+<div id="lightbox">
+  <button id="lightbox-close" title="Cerrar">&#10005;</button>
+  <img id="lightbox-img" src="" alt="">
 </div>
 
 <script>
@@ -459,14 +482,11 @@ body {
 
   function drawFrame(img) {
     if (!img || !img.complete || !img.naturalWidth) return;
-    const cw = canvas.width,  ch = canvas.height;
+    const cw = canvas.width, ch = canvas.height;
     const iw = img.naturalWidth, ih = img.naturalHeight;
-
-    /* Centra la imagen manteniendo aspect ratio — ideal para frames mobile */
     const scale = Math.min(cw / iw, ch / ih);
     const sw = iw * scale, sh = ih * scale;
-    const sx = (cw - sw) / 2,  sy = (ch - sh) / 2;
-
+    const sx = (cw - sw) / 2, sy = (ch - sh) / 2;
     ctx.clearRect(0, 0, cw, ch);
     ctx.drawImage(img, sx, sy, sw, sh);
   }
@@ -547,13 +567,10 @@ body {
      LIBRO
   ════════════════════════════════════════
 
-  Agrega tus páginas aquí:
-  ─────────────────────────────────────────
   titulo : encabezado en cursiva (opcional)
   texto  : contenido manuscrito  (opcional, acepta HTML)
   imagen : ruta a foto           (opcional)
   video  : URL embed de YouTube  (opcional)
-  ─────────────────────────────────────────
   */
   const paginas = [
     {
@@ -567,37 +584,49 @@ body {
         'Cada página es un día,<br>' +
         'cada día es algo tuyo.<br><br>' +
         'Bienvenida.'
-    },{
+    },
+    {
       titulo: 'Día 2',
       imagen: '/img/arbolcerezo.jpeg',
       texto:
         'Hola linda<br><br>' +
-        'Hoy mas que algo especial,<br>' +
-        'Pues queria que vieras un arbol lindo que me encontre en el camino.<br><br>' +
-        'Estaba lindo y me recordo un poco asi, alta bonita y floreciendo y creciendo conjunto al sol<3.<br><br>' +
+        'Hoy más que algo especial,<br>' +
+        'quería que vieras un árbol lindo<br>' +
+        'que me encontré en el camino.<br><br>' +
+        'Estaba lindo y me recordó<br>' +
+        'un poco a ti: alta, bonita<br>' +
+        'y floreciendo junto al sol ❤️<br><br>' +
         'Espero que te guste.'
     },
     {
       titulo: 'Día 3',
       texto:
-        'Vuelve mañana. ;)<br><br>' +
+        'Vuelve mañana ;)<br><br>' +
         'Aquí habrá algo nuevo<br>' +
         'esperándote...'
     }
     /*
-    ── Para agregar más días, copia este bloque: ──
+    ── Para agregar más días copia este bloque: ──
 
     ,{
-      titulo: 'Día 3',
+      titulo: 'Día 4',
       texto:  'Tu mensaje aquí.'
     }
 
     ── Con imagen: ──
 
     ,{
-      titulo: 'Día 4',
+      titulo: 'Día 5',
       imagen: 'img/tu-foto.jpg',
       texto:  'Pie de foto opcional.'
+    }
+
+    ── Con video de YouTube: ──
+
+    ,{
+      titulo: 'Día 6',
+      video:  'https://www.youtube.com/embed/ID_DEL_VIDEO',
+      texto:  'Escucha esto pensando en ti.'
     }
     */
   ];
@@ -607,7 +636,7 @@ body {
     let html = '<div class="pagina-cara">';
     html += '<div class="pagina-contenido">';
     if (data.titulo) html += `<p class="pagina-titulo">${data.titulo}</p>`;
-    if (data.imagen) html += `<img class="pagina-img" src="${data.imagen}" alt="">`;
+    if (data.imagen) html += `<img class="pagina-img" src="${data.imagen}" alt="imagen día ${num}">`;
     if (data.video)  html += `<iframe class="pagina-video" src="${data.video}" allowfullscreen></iframe>`;
     if (data.texto)  html += `<p class="pagina-texto">${data.texto}</p>`;
     html += '</div>';
@@ -616,22 +645,22 @@ body {
     return html;
   }
 
-  /* ── Renderiza todas las páginas ── */
+  /* ── Renderiza páginas ── */
   const stack     = document.getElementById('paginas-stack');
   const totalPags = paginas.length;
 
   paginas.forEach(function (pag, i) {
     const el = document.createElement('div');
-    el.className   = 'pagina-card ' + (i === 0 ? 'activa' : 'entrando');
+    el.className    = 'pagina-card ' + (i === 0 ? 'activa' : 'entrando');
     el.style.zIndex = totalPags - i;
     el.innerHTML    = buildPagina(pag, i + 1);
     stack.appendChild(el);
   });
 
-  const cards      = document.querySelectorAll('.pagina-card');
-  const indicador  = document.getElementById('libro-indicador');
-  const btnAnt     = document.getElementById('btn-anterior');
-  const btnSig     = document.getElementById('btn-siguiente');
+  const cards     = document.querySelectorAll('.pagina-card');
+  const indicador = document.getElementById('libro-indicador');
+  const btnAnt    = document.getElementById('btn-anterior');
+  const btnSig    = document.getElementById('btn-siguiente');
 
   let actual   = 0;
   let animando = false;
@@ -650,12 +679,9 @@ body {
     const avanza   = nuevo > anterior;
 
     if (avanza) {
-      /* Página actual sale volando hacia arriba */
       cards[anterior].className = 'pagina-card saliendo';
-      /* Nueva página sube desde atrás */
       cards[nuevo].className    = 'pagina-card activa';
     } else {
-      /* Volvemos: la nueva aparece desde adelante */
       cards[anterior].className = 'pagina-card entrando';
       cards[nuevo].className    = 'pagina-card activa';
     }
@@ -668,28 +694,63 @@ body {
   btnSig.addEventListener('click', function () { irA(actual + 1); });
   btnAnt.addEventListener('click', function () { irA(actual - 1); });
 
-  /* ── Swipe táctil ── */
-  let touchX = 0;
+  /* Swipe táctil */
+  let touchStartX = 0;
+  let touchStartY = 0;
   const escena = document.getElementById('libro-escena');
 
   escena.addEventListener('touchstart', function (e) {
-    touchX = e.touches[0].clientX;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
   escena.addEventListener('touchend', function (e) {
-    const diff = touchX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) < 40) return;
-    if (diff > 0) irA(actual + 1);
-    else          irA(actual - 1);
+    const diffX = touchStartX - e.changedTouches[0].clientX;
+    const diffY = Math.abs(touchStartY - e.changedTouches[0].clientY);
+    /* solo swipe horizontal y con movimiento suficiente */
+    if (Math.abs(diffX) < 40 || diffY > 60) return;
+    if (diffX > 0) irA(actual + 1);
+    else           irA(actual - 1);
   }, { passive: true });
 
-  /* ── Teclado ── */
+  /* Teclado */
   document.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowRight') irA(actual + 1);
     if (e.key === 'ArrowLeft')  irA(actual - 1);
   });
 
   actualizarUI();
+
+  /* ════════════════════════════════════════
+     LIGHTBOX
+  ════════════════════════════════════════ */
+  const lightbox      = document.getElementById('lightbox');
+  const lightboxImg   = document.getElementById('lightbox-img');
+  const lightboxClose = document.getElementById('lightbox-close');
+
+  document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('pagina-img')) {
+      lightboxImg.src = e.target.src;
+      lightbox.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+  });
+
+  function cerrarLightbox() {
+    lightbox.classList.remove('visible');
+    document.body.style.overflow = '';
+    setTimeout(function () { lightboxImg.src = ''; }, 300);
+  }
+
+  lightboxClose.addEventListener('click', cerrarLightbox);
+
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) cerrarLightbox();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarLightbox();
+  });
 
 })();
 </script>
