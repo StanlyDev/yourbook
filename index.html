@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: url("img/wmremove-transformed.jpeg") center/cover no-repeat;
+    background-attachment: fixed;
+  }
+
+  /* ══ PARALLAX FRAMES ══ */
+  .vs-section {
+    position: relative;
+    height: 500vh;
+  }
+  .vs-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+  }
+  #frame-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .container_mouse {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-family: sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .mouse-btn {
+    margin: 0 auto;
+    width: 40px;
+    height: 80px;
+    border: 3px solid #fff;
+    border-radius: 20px;
+    display: flex;
+  }
+  .mouse-scroll {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(170deg, #fff, #ccc);
+    border-radius: 50%;
+    margin: auto;
+    animation: scrolling13 1s linear infinite;
+  }
+  @keyframes scrolling13 {
+    0%   { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(20px); }
+  }
+
+  /* ══ CARTA ══ */
+  .carta-section {
+    position: relative;
+    height: 1560vh;
+  }
+  .carta-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .carta-inner {
+    max-width: 640px;
+    width: 90%;
+    padding: 2rem 1rem;
+  }
+  .carta-line {
+    font-family: 'Caveat', cursive;
+    font-size: 2.2rem;
+    color: #000;
+    line-height: 1.6;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    display: block;
+    margin-bottom: 0.4em;
+  }
+  .carta-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .carta-line.firma {
+    font-size: 1.6rem;
+    color: #333;
+    font-style: italic;
+    text-align: right;
+    margin-top: 0.8em;
+  }
+
+  /* ══ LIBRO ══ */
+  .libro-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    box-sizing: border-box;
+    background: rgba(6, 6, 8, 0.92);
+  }
+
+  .libro-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  /* Escena 3D — una sola página */
+  .libro-escena {
+    perspective: 1800px;
+    width: min(380px, 88vw);
+    height: min(520px, 120vw);
+    position: relative;
+  }
+
+  /* Sombra base */
+  .libro-escena::after {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    left: 10%;
+    width: 80%;
+    height: 18px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(5px);
+  }
+
+  /* Stack de páginas */
+  .paginas-stack {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+
+  /* Cada tarjeta/página */
+  .pagina-card {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform-origin: center bottom;
+    transition: transform 0.75s cubic-bezier(0.645, 0.045, 0.355, 1.000),
+                opacity   0.75s ease;
+    border-radius: 6px 6px 4px 4px;
+  }
+
+  /* Estado saliente: voltea hacia arriba y se va */
+  .pagina-card.saliendo {
+    transform: rotateX(90deg) translateZ(60px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* Estado entrando desde atrás */
+  .pagina-card.entrando {
+    transform: rotateX(-25deg) translateZ(-40px) scale(0.92);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* Estado activo */
+  .pagina-card.activa {
+    transform: rotateX(0deg) translateZ(0px) scale(1);
+    opacity: 1;
+    z-index: 10;
+  }
+
+  /* Cara de la página */
+  .pagina-cara {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px 6px 4px 4px;
+    background: #fdf6e8;
+    background-image:
+      repeating-linear-gradient(
+        transparent,
+        transparent 31px,
+        rgba(180,150,100,0.18) 31px,
+        rgba(180,150,100,0.18) 32px
+      );
+    box-shadow:
+      0 2px 6px rgba(0,0,0,0.15),
+      0 8px 30px rgba(0,0,0,0.35),
+      inset 0 0 40px rgba(200,169,122,0.08);
+    padding: 2.2rem 1.8rem 1.5rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Doblez esquina superior derecha */
+  .pagina-cara::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 28px 28px 0;
+    border-color: transparent rgba(180,150,100,0.35) transparent transparent;
+    border-radius: 0 6px 0 0;
+  }
+
+  /* Margen izquierdo rojo estilo cuaderno */
+  .pagina-cara::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 42px;
+    width: 1px;
+    height: 100%;
+    background: rgba(200, 100, 100, 0.25);
+  }
+
+  .pagina-contenido {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding-left: 18px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(160,120,64,0.3) transparent;
+  }
+
+  /* Webkit scrollbar */
+  .pagina-contenido::-webkit-scrollbar {
+    width: 4px;
+  }
+  .pagina-contenido::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .pagina-contenido::-webkit-scrollbar-thumb {
+    background: rgba(160,120,64,0.35);
+    border-radius: 2px;
+  }
+
+  .pagina-titulo {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: #5c3d1e;
+    border-bottom: 1px solid rgba(139,99,64,0.3);
+    padding-bottom: 0.5rem;
+    margin: 0;
+    line-height: 32px;
+    flex-shrink: 0;
+  }
+
+  .pagina-texto {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    color: #3a2510;
+    line-height: 32px;
+    margin: 0;
+  }
+
+  .pagina-img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 4px;
+    opacity: 0.92;
+    flex-shrink: 0;
+  }
+
+  .pagina-video {
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+    aspect-ratio: 16/9;
+    flex-shrink: 0;
+  }
+
+  .num-pagina {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.72rem;
+    color: #a07840;
+    text-align: center;
+    padding-top: 0.6rem;
+    letter-spacing: 0.12em;
+    flex-shrink: 0;
+  }
+
+  /* ── Controles ── */
+  .libro-controles {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .libro-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .libro-btn:hover     { background: rgba(255,255,255,0.18); transform: scale(1.08); }
+  .libro-btn:active    { transform: scale(0.95); }
+  .libro-btn:disabled  { opacity: 0.3; cursor: default; transform: none; }
+
+  .libro-indicador {
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.15em;
+    min-width: 70px;
+    text-align: center;
+  }
+
+  /* ══ RESPONSIVE ══ */
+  @media (max-width: 768px) {
+    #scroll-hint       { bottom: 3.5rem; }
+    .mouse-btn         { width: 32px; height: 64px; }
+    .mouse-scroll      { width: 16px; height: 16px; }
+    .carta-line        { font-size: 1.6rem; }
+    .carta-line.firma  { font-size: 1.2rem; }
+    .pagina-cara       { padding: 1.8rem 1.4rem 1.2rem; }
+    .pagina-texto      { font-size: 1.1rem; }
+  }
+
+  /* En desktop el canvas se ve mejor centrado */
+  @media (min-width: 769px) {
+    #frame-canvas {
+      object-fit: contain;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PARALLAX FRAMES
+════════════════════════════════════════ -->
+<div class="vs-section" id="vs-section">
+  <div class="vs-sticky" id="vs-sticky">
+    <canvas id="frame-canvas"></canvas>
+    <div id="scroll-hint">
+      <div class="container_mouse">
+        <span class="mouse-btn"><span class="mouse-scroll"></span></span>
+        <span>Scroll</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CARTA
+════════════════════════════════════════ -->
+<div class="carta-section" id="carta-section">
+  <div class="carta-sticky">
+    <div class="carta-inner">
+      <span class="carta-line">Y no creas que solo vengo</span>
+      <span class="carta-line">a decirte que eres preciosa,</span>
+      <span class="carta-line">o bonita.</span>
+      <span class="carta-line">Esto es un libro lleno</span>
+      <span class="carta-line">de cosas bonitas.</span>
+      <span class="carta-line">Por cada página, cada día</span>
+      <span class="carta-line">encontrarás algo para ti aquí,</span>
+      <span class="carta-line">así que espero los veas,</span>
+      <span class="carta-line">pues si algo te mereces,</span>
+      <span class="carta-line">es cada día —</span>
+      <span class="carta-line">sin importar el qué —</span>
+      <span class="carta-line">siempre tener algo bonito.</span>
+      <span class="carta-line firma">— para ti 🤍</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LIBRO — una página a la vez
+════════════════════════════════════════ -->
+<div class="libro-section">
+  <div class="libro-wrapper">
+
+    <div class="libro-escena" id="libro-escena">
+      <div class="paginas-stack" id="paginas-stack"></div>
+    </div>
+
+    <div class="libro-controles">
+      <button class="libro-btn" id="btn-anterior">&#8592;</button>
+      <div class="libro-indicador" id="libro-indicador">1 / 1</div>
+      <button class="libro-btn" id="btn-siguiente">&#8594;</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /* ════════════════════════════════════════
+     PARALLAX FRAMES
+  ════════════════════════════════════════ */
+  const BASE_URL = '/img/animation/ezgif-frame-';
+  const EXT      = '.jpg';
+  const TOTAL    = 41;
+  const PAD      = 3;
+
+  const canvas  = document.getElementById('frame-canvas');
+  const ctx     = canvas.getContext('2d');
+  const section = document.getElementById('vs-section');
+  const sticky  = document.getElementById('vs-sticky');
+  const hint    = document.getElementById('scroll-hint');
+
+  const frameImgs = new Array(TOTAL + 1);
+  let currentFrame = 1;
+  let rafPending   = false;
+  let dpr          = window.devicePixelRatio || 1;
+
+  function padNum(n)  { return String(n).padStart(PAD, '0'); }
+  function urlF(i)    { return BASE_URL + padNum(i) + EXT; }
+
+  function drawFrame(img) {
+    if (!img || !img.complete || !img.naturalWidth) return;
+    const cw = canvas.width,  ch = canvas.height;
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+
+    /* Centra la imagen manteniendo aspect ratio — ideal para frames mobile */
+    const scale = Math.min(cw / iw, ch / ih);
+    const sw = iw * scale, sh = ih * scale;
+    const sx = (cw - sw) / 2,  sy = (ch - sh) / 2;
+
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(img, sx, sy, sw, sh);
+  }
+
+  function resizeCanvas() {
+    dpr = window.devicePixelRatio || 1;
+    canvas.width  = Math.round(sticky.offsetWidth  * dpr);
+    canvas.height = Math.round(sticky.offsetHeight * dpr);
+    if (frameImgs[currentFrame]?.complete) drawFrame(frameImgs[currentFrame]);
+  }
+
+  function preloadAll(onDone) {
+    let count = TOTAL;
+    for (let i = 1; i <= TOTAL; i++) {
+      const img = new Image();
+      img.onload = img.onerror = function () {
+        if (--count === 0 && onDone) onDone();
+      };
+      img.src = urlF(i);
+      frameImgs[i] = img;
+    }
+  }
+
+  const ro = new ResizeObserver(resizeCanvas);
+  ro.observe(sticky);
+  resizeCanvas();
+  preloadAll(function () { if (frameImgs[1]) drawFrame(frameImgs[1]); });
+
+  /* ════════════════════════════════════════
+     CARTA
+  ════════════════════════════════════════ */
+  const cartaSection = document.getElementById('carta-section');
+  const cartaLines   = document.querySelectorAll('.carta-line');
+  const numLines     = cartaLines.length;
+
+  function onScroll() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(function () {
+      rafPending = false;
+
+      /* frames */
+      const rect     = section.getBoundingClientRect();
+      const traveled = -rect.top;
+      const total    = rect.height - window.innerHeight;
+      const progress = Math.min(Math.max(traveled / total, 0), 1);
+      const idx      = Math.min(Math.round(progress * (TOTAL - 1)) + 1, TOTAL);
+
+      if (hint) hint.style.opacity = progress > 0.02 ? '0' : '1';
+
+      if (idx !== currentFrame) {
+        currentFrame = idx;
+        const target = frameImgs[idx];
+        if (target && target.complete) drawFrame(target);
+        else if (target) target.onload = function () { drawFrame(target); };
+      }
+
+      /* carta */
+      if (cartaSection) {
+        const cr        = cartaSection.getBoundingClientRect();
+        const traveledC = -cr.top;
+        const totalC    = cr.height - window.innerHeight;
+        const prog      = Math.min(Math.max(traveledC / totalC, 0), 1);
+        const visible   = Math.floor(prog * numLines);
+        cartaLines.forEach(function (line, i) {
+          if (i < visible) line.classList.add('visible');
+          else             line.classList.remove('visible');
+        });
+      }
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('orientationchange', function () { setTimeout(resizeCanvas, 200); });
+  onScroll();
+
+  /* ════════════════════════════════════════
+     LIBRO
+  ════════════════════════════════════════
+
+  Agrega tus páginas aquí:
+  ─────────────────────────────────────────
+  titulo : encabezado en cursiva (opcional)
+  texto  : contenido manuscrito  (opcional, acepta HTML)
+  imagen : ruta a foto           (opcional)
+  video  : URL embed de YouTube  (opcional)
+  ─────────────────────────────────────────
+  */
+  const paginas = [
+    {
+      titulo: 'Introducción',
+      texto:
+        'Hola tú. <3<br><br>' +
+        'No sé si esto te sorprende,<br>' +
+        'pero aquí estoy,<br>' +
+        'empezando este librito<br>' +
+        'solo para ti.<br><br>' +
+        'Cada página es un día,<br>' +
+        'cada día es algo tuyo.<br><br>' +
+        'Bienvenida.'
+    },{
+      titulo: 'Día 2',
+      imagen: '/img/arbolcerezo.jpeg',
+      texto:
+        'Hola linda<br><br>' +
+        'Hoy mas que algo especial,<br>' +
+        'Pues queria que vieras un arbol lindo que me encontre en el camino.<br><br>' +
+        'Estaba lindo y me recordo un poco asi, alta bonita y floreciendo y creciendo conjunto al sol<3.<br><br>' +
+        'Espero que te guste.'
+    },
+    {
+      titulo: 'Día 3',
+      texto:
+        'Vuelve mañana. ;)<br><br>' +
+        'Aquí habrá algo nuevo<br>' +
+        'esperándote...'
+    }
+    /*
+    ── Para agregar más días, copia este bloque: ──
+
+    ,{
+      titulo: 'Día 3',
+      texto:  'Tu mensaje aquí.'
+    }
+
+    ── Con imagen: ──
+
+    ,{
+      titulo: 'Día 4',
+      imagen: 'img/tu-foto.jpg',
+      texto:  'Pie de foto opcional.'
+    }
+    */
+  ];
+
+  /* ── Construye HTML de una página ── */
+  function buildPagina(data, num) {
+    let html = '<div class="pagina-cara">';
+    html += '<div class="pagina-contenido">';
+    if (data.titulo) html += `<p class="pagina-titulo">${data.titulo}</p>`;
+    if (data.imagen) html += `<img class="pagina-img" src="${data.imagen}" alt="">`;
+    if (data.video)  html += `<iframe class="pagina-video" src="${data.video}" allowfullscreen></iframe>`;
+    if (data.texto)  html += `<p class="pagina-texto">${data.texto}</p>`;
+    html += '</div>';
+    html += `<div class="num-pagina">— ${num} —</div>`;
+    html += '</div>';
+    return html;
+  }
+
+  /* ── Renderiza todas las páginas ── */
+  const stack     = document.getElementById('paginas-stack');
+  const totalPags = paginas.length;
+
+  paginas.forEach(function (pag, i) {
+    const el = document.createElement('div');
+    el.className   = 'pagina-card ' + (i === 0 ? 'activa' : 'entrando');
+    el.style.zIndex = totalPags - i;
+    el.innerHTML    = buildPagina(pag, i + 1);
+    stack.appendChild(el);
+  });
+
+  const cards      = document.querySelectorAll('.pagina-card');
+  const indicador  = document.getElementById('libro-indicador');
+  const btnAnt     = document.getElementById('btn-anterior');
+  const btnSig     = document.getElementById('btn-siguiente');
+
+  let actual   = 0;
+  let animando = false;
+
+  function actualizarUI() {
+    indicador.textContent = `${actual + 1} / ${totalPags}`;
+    btnAnt.disabled = actual === 0;
+    btnSig.disabled = actual === totalPags - 1;
+  }
+
+  function irA(nuevo) {
+    if (animando || nuevo < 0 || nuevo >= totalPags || nuevo === actual) return;
+    animando = true;
+
+    const anterior = actual;
+    const avanza   = nuevo > anterior;
+
+    if (avanza) {
+      /* Página actual sale volando hacia arriba */
+      cards[anterior].className = 'pagina-card saliendo';
+      /* Nueva página sube desde atrás */
+      cards[nuevo].className    = 'pagina-card activa';
+    } else {
+      /* Volvemos: la nueva aparece desde adelante */
+      cards[anterior].className = 'pagina-card entrando';
+      cards[nuevo].className    = 'pagina-card activa';
+    }
+
+    actual = nuevo;
+    actualizarUI();
+    setTimeout(function () { animando = false; }, 800);
+  }
+
+  btnSig.addEventListener('click', function () { irA(actual + 1); });
+  btnAnt.addEventListener('click', function () { irA(actual - 1); });
+
+  /* ── Swipe táctil ── */
+  let touchX = 0;
+  const escena = document.getElementById('libro-escena');
+
+  escena.addEventListener('touchstart', function (e) {
+    touchX = e.touches[0].clientX;
+  }, { passive: true });
+
+  escena.addEventListener('touchend', function (e) {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) < 40) return;
+    if (diff > 0) irA(actual + 1);
+    else          irA(actual - 1);
+  }, { passive: true });
+
+  /* ── Teclado ── */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') irA(actual + 1);
+    if (e.key === 'ArrowLeft')  irA(actual - 1);
+  });
+
+  actualizarUI();
+
+})();
+</script>
+</body>
+</html>
